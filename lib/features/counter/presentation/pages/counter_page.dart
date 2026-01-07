@@ -29,12 +29,29 @@ class _CounterPageState extends State<CounterPage> {
       ),
       body: Consumer<CounterProvider>(
         builder: (context, counterProvider, _) {
-          if (counterProvider.isLoading && counterProvider.counter == null) {
+          if (counterProvider.state == CounterState.loading &&
+              counterProvider.state == CounterState.initial) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (counterProvider.error != null) {
-            return Center(child: Text('Error: ${counterProvider.error}'));
+          if (counterProvider.hasError &&
+              counterProvider.errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${counterProvider.errorMessage}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      counterProvider.clearError();
+                      counterProvider.initCounter();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
 
           return Center(
@@ -53,7 +70,7 @@ class _CounterPageState extends State<CounterPage> {
                     color: Colors.deepPurple.withAlpha(30),
                   ),
                   child: Text(
-                    '${counterProvider.counter?.value ?? 0}',
+                    '${counterProvider.counter.value}',
                     style: const TextStyle(
                       fontSize: 72,
                       fontWeight: FontWeight.bold,

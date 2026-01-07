@@ -36,8 +36,23 @@ class _TodoPageState extends State<TodoPage> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (todoProvider.error != null && todoProvider.todos.isEmpty) {
-            return Center(child: Text('Error: ${todoProvider.error}'));
+          if (todoProvider.hasError && todoProvider.todos.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${todoProvider.errorMessage}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      todoProvider.clearError();
+                      todoProvider.initTodos();
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
 
           return Column(
@@ -77,7 +92,7 @@ class _TodoPageState extends State<TodoPage> {
                     Column(
                       children: [
                         Text(
-                          '${todoProvider.totalCount - todoProvider.completedCount}',
+                          '${todoProvider.pendingCount}',
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
