@@ -1,5 +1,5 @@
 /// Entity representing dashboard statistics in the domain layer
-/// 
+///
 /// This entity aggregates data from multiple features (Counter & Todo)
 /// following the Single Responsibility Principle - it only represents
 /// the business logic data structure without any implementation details.

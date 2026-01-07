@@ -8,6 +8,11 @@ import '../../features/counter/domain/usecases/get_counter_usecase.dart';
 import '../../features/counter/domain/usecases/increment_counter_usecase.dart';
 import '../../features/counter/domain/usecases/reset_counter_usecase.dart';
 import '../../features/counter/presentation/provider/counter_provider.dart';
+import '../../features/dashboard/data/repositories/dashboard_repository_impl.dart';
+import '../../features/dashboard/domain/repositories/dashboard_repository.dart';
+import '../../features/dashboard/domain/usecases/get_dashboard_stats_usecase.dart';
+import '../../features/dashboard/domain/usecases/refresh_dashboard_stats_usecase.dart';
+import '../../features/dashboard/presentation/provider/dashboard_provider.dart';
 import '../../features/todo/data/datasources/todo_local_datasource.dart';
 import '../../features/todo/data/repositories/todo_repository_impl.dart';
 import '../../features/todo/domain/repositories/todo_repository.dart';
@@ -87,6 +92,36 @@ void setupServiceLocator() {
       updateTodoUseCase: getIt<UpdateTodoUseCase>(),
       deleteTodoUseCase: getIt<DeleteTodoUseCase>(),
       toggleTodoUseCase: getIt<ToggleTodoUseCase>(),
+    ),
+  );
+
+  // ========================================
+  // DASHBOARD FEATURE
+  // Cross-feature aggregation of Counter and Todo
+  // Demonstrates enterprise-level dependency management
+  // ========================================
+
+  // Dashboard - Repository (depends on Counter & Todo repositories)
+  getIt.registerSingleton<DashboardRepository>(
+    DashboardRepositoryImpl(
+      counterRepository: getIt<CounterRepository>(),
+      todoRepository: getIt<TodoRepository>(),
+    ),
+  );
+
+  // Dashboard - Use Cases
+  getIt.registerSingleton<GetDashboardStatsUseCase>(
+    GetDashboardStatsUseCase(repository: getIt<DashboardRepository>()),
+  );
+  getIt.registerSingleton<RefreshDashboardStatsUseCase>(
+    RefreshDashboardStatsUseCase(repository: getIt<DashboardRepository>()),
+  );
+
+  // Dashboard - Provider
+  getIt.registerSingleton<DashboardProvider>(
+    DashboardProvider(
+      getDashboardStatsUseCase: getIt<GetDashboardStatsUseCase>(),
+      refreshDashboardStatsUseCase: getIt<RefreshDashboardStatsUseCase>(),
     ),
   );
 }
