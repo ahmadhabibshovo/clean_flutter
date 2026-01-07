@@ -132,14 +132,14 @@ class _TodoDialogState extends State<TodoDialog> {
 
             if (isEditing) {
               context.read<TodoProvider>().updateTodo(
-                widget.todo!.id,
-                titleController.text,
-                descriptionController.text,
+                id: widget.todo!.id,
+                title: titleController.text,
+                description: descriptionController.text,
               );
             } else {
               context.read<TodoProvider>().addTodo(
-                titleController.text,
-                descriptionController.text,
+                title: titleController.text,
+                description: descriptionController.text,
               );
             }
             Navigator.pop(context);
