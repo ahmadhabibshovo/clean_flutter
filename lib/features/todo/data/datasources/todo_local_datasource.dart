@@ -7,6 +7,7 @@ abstract class TodoLocalDataSource {
     required String title,
     required String description,
   });
+  Future<TodoModel> toggleTodo({required String id});
 }
 
 /// In-memory local store (acts like a DB/cache)
@@ -40,5 +41,21 @@ class TodoLocalDataSourceInMemory implements TodoLocalDataSource {
     );
     _cache.add(model);
     return model;
+  }
+
+  @override
+  Future<TodoModel> toggleTodo({required String id}) async {
+    final index = _cache.indexWhere((t) => t.id == id);
+    if (index == -1) {
+      throw StateError('Todo not found: $id');
+    }
+
+    final current = _cache[index];
+    final updated = current.copyWith(
+      isCompleted: !current.isCompleted,
+      updatedAt: DateTime.now(),
+    );
+    _cache[index] = updated;
+    return updated;
   }
 }

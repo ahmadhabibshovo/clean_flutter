@@ -20,3 +20,12 @@ class TodoAddRequested extends TodoEvent {
   @override
   List<Object?> get props => [title, description];
 }
+
+class TodoToggleRequested extends TodoEvent {
+  final String id;
+
+  const TodoToggleRequested({required this.id});
+
+  @override
+  List<Object?> get props => [id];
+}

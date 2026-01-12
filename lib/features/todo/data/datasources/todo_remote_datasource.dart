@@ -6,6 +6,8 @@ abstract class TodoRemoteDataSource {
     required String title,
     required String description,
   });
+
+  Future<TodoModel> toggleTodo({required String id});
 }
 
 /// Offline mock API that returns JSON-like responses.
@@ -82,6 +84,25 @@ class TodoRemoteDataSourceMock implements TodoRemoteDataSource {
     _serverTodos.add(newJson);
 
     final response = _ok(newJson);
+    return TodoModel.fromJson(response['data'] as Map<String, dynamic>);
+  }
+
+  @override
+  Future<TodoModel> toggleTodo({required String id}) async {
+    await Future.delayed(latency);
+    await _maybeFail();
+
+    final index = _serverTodos.indexWhere((t) => t['id'] == id);
+    if (index == -1) {
+      throw MockApiException('Todo not found');
+    }
+
+    final current = Map<String, dynamic>.from(_serverTodos[index]);
+    current['isCompleted'] = !(current['isCompleted'] as bool? ?? false);
+    current['updatedAt'] = DateTime.now().toUtc().toIso8601String();
+    _serverTodos[index] = current;
+
+    final response = _ok(current);
     return TodoModel.fromJson(response['data'] as Map<String, dynamic>);
   }
 }

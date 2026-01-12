@@ -76,4 +76,25 @@ class TodoRepositoryImpl implements TodoRepository {
       return Left(UnexpectedFailure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, TodoEntity>> toggleTodo({required String id}) async {
+    try {
+      final model = await remoteDataSource.toggleTodo(id: id);
+      // refresh cache from remote so local stays consistent
+      final remoteTodos = await remoteDataSource.fetchTodos();
+      await localDataSource.cacheTodos(remoteTodos);
+      return Right(model.toEntity());
+    } on MockApiException catch (e) {
+      // fallback to local-only toggle
+      try {
+        final local = await localDataSource.toggleTodo(id: id);
+        return Right(local.toEntity());
+      } catch (_) {
+        return Left(ServerFailure(message: e.message));
+      }
+    } catch (e) {
+      return Left(UnexpectedFailure.fromException(e));
+    }
+  }
 }

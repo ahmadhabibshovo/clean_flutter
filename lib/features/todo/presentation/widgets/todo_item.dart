@@ -4,17 +4,23 @@ import '../../domain/entities/todo.dart';
 
 class TodoItem extends StatelessWidget {
   final TodoEntity todo;
+  final VoidCallback? onToggle;
 
-  const TodoItem({super.key, required this.todo});
+  const TodoItem({super.key, required this.todo, this.onToggle});
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        todo.isCompleted ? Icons.check_circle : Icons.circle_outlined,
+    return CheckboxListTile(
+      value: todo.isCompleted,
+      onChanged: (_) => onToggle?.call(),
+      title: Text(
+        todo.title,
+        style: TextStyle(
+          decoration: todo.isCompleted ? TextDecoration.lineThrough : null,
+        ),
       ),
-      title: Text(todo.title),
       subtitle: todo.description.isEmpty ? null : Text(todo.description),
+      controlAffinity: ListTileControlAffinity.leading,
     );
   }
 }

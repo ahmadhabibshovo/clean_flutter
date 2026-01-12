@@ -18,5 +18,22 @@ void main() {
     // Seeded mock todos should appear
     expect(find.text('Read Clean Architecture'), findsOneWidget);
     expect(find.text('Implement offline mock API'), findsOneWidget);
+
+    // Create a new todo
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.byKey(const Key('todo_title_field')),
+      'New Task',
+    );
+    await tester.enterText(
+      find.byKey(const Key('todo_description_field')),
+      'Created from test',
+    );
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('New Task'), findsOneWidget);
   });
 }

@@ -9,4 +9,6 @@ abstract class TodoRepository {
     required String title,
     String? description,
   });
+
+  Future<Either<Failure, TodoEntity>> toggleTodo({required String id});
 }

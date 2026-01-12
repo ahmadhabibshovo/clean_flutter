@@ -47,7 +47,11 @@ class _TodoPageState extends ConsumerState<TodoPage> {
                 return ListView.separated(
                   itemCount: todos.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
-                  itemBuilder: (_, index) => TodoItem(todo: todos[index]),
+                  itemBuilder: (_, index) => TodoItem(
+                    todo: todos[index],
+                    onToggle: () =>
+                        bloc.add(TodoToggleRequested(id: todos[index].id)),
+                  ),
                 );
               case TodoError(:final failure):
                 return Center(
@@ -57,9 +61,7 @@ class _TodoPageState extends ConsumerState<TodoPage> {
                       Text('Error: ${failure.message}'),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () => context.read<TodoBloc>().add(
-                          const TodoLoadRequested(),
-                        ),
+                        onPressed: () => bloc.add(const TodoLoadRequested()),
                         child: const Text('Retry'),
                       ),
                     ],
@@ -76,7 +78,7 @@ class _TodoPageState extends ConsumerState<TodoPage> {
             );
             if (result == null) return;
             if (!context.mounted) return;
-            context.read<TodoBloc>().add(
+            bloc.add(
               TodoAddRequested(
                 title: result.title,
                 description: result.description,
@@ -106,6 +108,7 @@ class _TodoDialog extends StatefulWidget {
 class _TodoDialogState extends State<_TodoDialog> {
   final _title = TextEditingController();
   final _desc = TextEditingController();
+  String? _error;
 
   @override
   void dispose() {
@@ -122,13 +125,19 @@ class _TodoDialogState extends State<_TodoDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
+            key: const Key('todo_title_field'),
             controller: _title,
             decoration: const InputDecoration(labelText: 'Title'),
           ),
           TextField(
+            key: const Key('todo_description_field'),
             controller: _desc,
             decoration: const InputDecoration(labelText: 'Description'),
           ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(_error!, style: const TextStyle(color: Colors.red)),
+          ],
         ],
       ),
       actions: [
@@ -138,9 +147,14 @@ class _TodoDialogState extends State<_TodoDialog> {
         ),
         FilledButton(
           onPressed: () {
+            final title = _title.text.trim();
+            if (title.isEmpty) {
+              setState(() => _error = 'Title is required');
+              return;
+            }
             Navigator.pop(
               context,
-              _TodoDialogResult(title: _title.text, description: _desc.text),
+              _TodoDialogResult(title: title, description: _desc.text.trim()),
             );
           },
           child: const Text('Add'),
