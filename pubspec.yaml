@@ -36,6 +36,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.0.0
   get_it: ^7.6.0
+  flutter_riverpod: ^2.5.1
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
   intl: ^0.18.0
 
 dev_dependencies:
