@@ -1,8 +1,10 @@
-import '../types/result.dart';
+import 'package:dartz/dartz.dart';
+
+import '../errors/failures.dart';
 
 /// Base UseCase
 abstract class UseCase<T, P> {
-  Future<Result<T>> call(P params);
+  Future<Either<Failure, T>> call(P params);
 }
 
 /// Base params marker

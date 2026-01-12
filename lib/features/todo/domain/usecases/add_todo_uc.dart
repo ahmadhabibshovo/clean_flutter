@@ -1,4 +1,6 @@
-import '../../../../core/types/result.dart';
+import 'package:dartz/dartz.dart';
+
+import '../../../../core/errors/failures.dart';
 import '../../../../core/usecases/usecase.dart';
 import '../entities/todo.dart';
 import '../repositories/todo_repository.dart';
@@ -16,7 +18,7 @@ class AddTodoUseCase extends UseCase<TodoEntity, AddTodoParams> {
   AddTodoUseCase({required this.repository});
 
   @override
-  Future<Result<TodoEntity>> call(AddTodoParams params) {
+  Future<Either<Failure, TodoEntity>> call(AddTodoParams params) {
     return repository.addTodo(
       title: params.title,
       description: params.description,

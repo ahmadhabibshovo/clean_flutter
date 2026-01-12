@@ -1,9 +1,11 @@
+import 'package:dartz/dartz.dart';
+
 import '../../../../core/errors/failures.dart';
-import '../../../../core/types/result.dart';
 import '../../domain/entities/todo.dart';
 import '../../domain/repositories/todo_repository.dart';
 import '../datasources/todo_local_datasource.dart';
 import '../datasources/todo_remote_datasource.dart';
+import '../models/todo_model.dart';
 
 class TodoRepositoryImpl implements TodoRepository {
   final TodoLocalDataSource localDataSource;
@@ -15,37 +17,33 @@ class TodoRepositoryImpl implements TodoRepository {
   });
 
   @override
-  Future<Result<List<TodoEntity>>> getTodos() async {
+  Future<Either<Failure, List<TodoEntity>>> getTodos() async {
     try {
       // Prefer remote (even though it is offline-mock) to simulate enterprise sync.
       final remoteTodos = await remoteDataSource.fetchTodos();
       await localDataSource.cacheTodos(remoteTodos);
-      return ResultFactories.success(
-        remoteTodos.map((m) => m.toEntity()).toList(),
-      );
+      return Right(remoteTodos.map((m) => m.toEntity()).toList());
     } on MockApiException catch (e) {
       // Fallback to local cache
       try {
         final localTodos = await localDataSource.getTodos();
-        return ResultFactories.success(
-          localTodos.map((m) => m.toEntity()).toList(),
-        );
+        return Right(localTodos.map((m) => m.toEntity()).toList());
       } catch (cacheError) {
-        return ResultFactories.failure(ServerFailure(message: e.message));
+        return Left(ServerFailure(message: e.message));
       }
     } catch (e) {
-      return ResultFactories.failure(UnexpectedFailure.fromException(e));
+      return Left(UnexpectedFailure.fromException(e));
     }
   }
 
   @override
-  Future<Result<TodoEntity>> addTodo({
+  Future<Either<Failure, TodoEntity>> addTodo({
     required String title,
     String? description,
   }) async {
     if (title.trim().isEmpty) {
-      return ResultFactories.failure(
-        const ValidationFailure(
+      return const Left(
+        ValidationFailure(
           message: 'Title cannot be empty',
           fieldErrors: {'title': 'Required'},
         ),
@@ -62,7 +60,7 @@ class TodoRepositoryImpl implements TodoRepository {
       final current = await localDataSource.getTodos();
       await localDataSource.cacheTodos([...current, model]);
 
-      return ResultFactories.success(model.toEntity());
+      return Right(model.toEntity());
     } on MockApiException {
       // If remote fails, write locally (offline mode)
       try {
@@ -70,14 +68,12 @@ class TodoRepositoryImpl implements TodoRepository {
           title: title.trim(),
           description: (description ?? '').trim(),
         );
-        return ResultFactories.success(local.toEntity());
+        return Right(local.toEntity());
       } catch (cacheError) {
-        return ResultFactories.failure(
-          CacheFailure(message: 'Failed to save locally'),
-        );
+        return const Left(CacheFailure(message: 'Failed to save locally'));
       }
     } catch (e) {
-      return ResultFactories.failure(UnexpectedFailure.fromException(e));
+      return Left(UnexpectedFailure.fromException(e));
     }
   }
 }

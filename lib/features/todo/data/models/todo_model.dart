@@ -1,26 +1,26 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../domain/entities/todo.dart';
 
-class TodoModel extends TodoEntity {
-  const TodoModel({
-    required super.id,
-    required super.title,
-    required super.description,
-    required super.isCompleted,
-    required super.createdAt,
-    super.updatedAt,
-  });
+part 'todo_model.freezed.dart';
+part 'todo_model.g.dart';
 
-  factory TodoModel.fromEntity(TodoEntity entity) {
-    return TodoModel(
-      id: entity.id,
-      title: entity.title,
-      description: entity.description,
-      isCompleted: entity.isCompleted,
-      createdAt: entity.createdAt,
-      updatedAt: entity.updatedAt,
-    );
-  }
+@freezed
+class TodoModel with _$TodoModel {
+  const factory TodoModel({
+    required String id,
+    required String title,
+    @Default('') String description,
+    @Default(false) bool isCompleted,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+  }) = _TodoModel;
 
+  factory TodoModel.fromJson(Map<String, dynamic> json) =>
+      _$TodoModelFromJson(json);
+}
+
+extension TodoModelMapping on TodoModel {
   TodoEntity toEntity() => TodoEntity(
     id: id,
     title: title,
@@ -30,27 +30,12 @@ class TodoModel extends TodoEntity {
     updatedAt: updatedAt,
   );
 
-  factory TodoModel.fromJson(Map<String, dynamic> json) {
-    return TodoModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: (json['description'] as String?) ?? '',
-      isCompleted: (json['isCompleted'] as bool?) ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'isCompleted': isCompleted,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
-    };
-  }
+  static TodoModel fromEntity(TodoEntity entity) => TodoModel(
+    id: entity.id,
+    title: entity.title,
+    description: entity.description,
+    isCompleted: entity.isCompleted,
+    createdAt: entity.createdAt,
+    updatedAt: entity.updatedAt,
+  );
 }

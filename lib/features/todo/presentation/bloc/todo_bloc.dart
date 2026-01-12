@@ -20,8 +20,8 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     emit(const TodoLoading());
     final result = await getTodos(const NoParams());
     result.fold(
-      onFailure: (f) => emit(TodoError(failure: f)),
-      onSuccess: (todos) => emit(TodoLoaded(todos: todos)),
+      (f) => emit(TodoError(failure: f)),
+      (todos) => emit(TodoLoaded(todos: todos)),
     );
   }
 
@@ -33,15 +33,15 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     );
 
     await result.fold(
-      onFailure: (f) async {
+      (f) async {
         emit(TodoError(failure: f));
       },
-      onSuccess: (newTodo) async {
+      (newTodo) async {
         // reload list (enterprise-safe consistency)
         final listResult = await getTodos(const NoParams());
         listResult.fold(
-          onFailure: (f) => emit(TodoError(failure: f)),
-          onSuccess: (todos) => emit(TodoLoaded(todos: todos)),
+          (f) => emit(TodoError(failure: f)),
+          (todos) => emit(TodoLoaded(todos: todos)),
         );
       },
     );
