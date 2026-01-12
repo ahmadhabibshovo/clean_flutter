@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../models/todo_model.dart';
 
 /// Abstract local data source for TODO
@@ -15,6 +17,7 @@ class TodoLocalDataSourceImpl implements TodoLocalDataSource {
 
   @override
   Future<List<TodoModel>> getTodos() async {
+    log('Getting todos: $_todos');
     return _todos;
   }
 
