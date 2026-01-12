@@ -129,10 +129,7 @@ class _AppHomeState extends State<AppHome> {
             icon: Icon(Icons.calculate),
             label: 'Counter',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.checklist),
-            label: 'TODO',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.checklist), label: 'TODO'),
         ],
       ),
     );

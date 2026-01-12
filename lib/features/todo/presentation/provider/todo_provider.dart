@@ -101,8 +101,10 @@ class TodoProvider with ChangeNotifier {
         _todos[index] = updatedTodo;
       }
       _error = null;
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
+      notifyListeners();
     }
   }
 
