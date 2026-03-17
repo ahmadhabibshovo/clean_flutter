@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hooks_riverpod/legacy.dart';
 
 import '../../domain/entities/counter_entity.dart';
 import '../../domain/usecases/decrement_counter_usecase.dart';
@@ -86,3 +87,4 @@ class CounterProvider with ChangeNotifier {
     notifyListeners();
   }
 }
+

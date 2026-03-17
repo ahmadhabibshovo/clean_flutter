@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../data/datasources/counter_local_datasource.dart';
 import '../../data/repositories/counter_repository_impl.dart';
@@ -32,25 +31,14 @@ class CounterApp extends StatelessWidget {
       repository: repository,
     );
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => CounterProvider(
-            getCounterUseCase: getCounterUseCase,
-            incrementCounterUseCase: incrementCounterUseCase,
-            decrementCounterUseCase: decrementCounterUseCase,
-            resetCounterUseCase: resetCounterUseCase,
-          ),
-        ),
-      ],
-      child: MaterialApp(
+    return  MaterialApp(
         title: 'Clean Architecture Counter',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
         home: const CounterPage(),
-      ),
+      
     );
   }
 }

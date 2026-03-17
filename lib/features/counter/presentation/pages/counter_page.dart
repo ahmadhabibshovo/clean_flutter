@@ -1,40 +1,27 @@
+import 'package:clean/main.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../provider/counter_provider.dart';
-
-class CounterPage extends StatefulWidget {
+class CounterPage extends ConsumerWidget {
   const CounterPage({super.key});
 
   @override
-  State<CounterPage> createState() => _CounterPageState();
-}
-
-class _CounterPageState extends State<CounterPage> {
-  @override
-  void initState() {
-    super.initState();
-    // Initialize counter on page load
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CounterProvider>().initCounter();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Clean Architecture Counter'),
         centerTitle: true,
       ),
-      body: Consumer<CounterProvider>(
-        builder: (context, counterProvider, _) {
-          if (counterProvider.isLoading && counterProvider.counter == null) {
+      body: Consumer(
+        builder: (context, ref, _) {
+          final counter = ref.watch(counterProvider);
+          
+          if (counter.isLoading && counter.counter == null) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (counterProvider.error != null) {
-            return Center(child: Text('Error: ${counterProvider.error}'));
+          if (counter.error != null) {
+            return Center(child: Text('Error: ${counter.error}'));
           }
 
           return Center(
@@ -53,7 +40,7 @@ class _CounterPageState extends State<CounterPage> {
                     color: Colors.deepPurple.withAlpha(30),
                   ),
                   child: Text(
-                    '${counterProvider.counter?.value ?? 0}',
+                    '${counter.counter?.value ?? 0}',
                     style: const TextStyle(
                       fontSize: 72,
                       fontWeight: FontWeight.bold,
@@ -66,9 +53,9 @@ class _CounterPageState extends State<CounterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: counterProvider.isLoading
+                      onPressed: counter.isLoading
                           ? null
-                          : () => counterProvider.decrement(),
+                          : () => ref.read(counterProvider).decrement(),
                       icon: const Icon(Icons.remove),
                       label: const Text('Decrement'),
                       style: ElevatedButton.styleFrom(
@@ -82,9 +69,9 @@ class _CounterPageState extends State<CounterPage> {
                     ),
                     const SizedBox(width: 20),
                     ElevatedButton.icon(
-                      onPressed: counterProvider.isLoading
+                      onPressed: counter.isLoading
                           ? null
-                          : () => counterProvider.increment(),
+                          : () => ref.read(counterProvider).increment(),
                       icon: const Icon(Icons.add),
                       label: const Text('Increment'),
                       style: ElevatedButton.styleFrom(
@@ -100,9 +87,9 @@ class _CounterPageState extends State<CounterPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton.icon(
-                  onPressed: counterProvider.isLoading
+                  onPressed: counter.isLoading
                       ? null
-                      : () => counterProvider.reset(),
+                      : () => ref.read(counterProvider).reset(),
                   icon: const Icon(Icons.refresh),
                   label: const Text('Reset'),
                   style: ElevatedButton.styleFrom(
